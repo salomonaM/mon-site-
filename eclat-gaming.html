@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SALOCOOL G — Recharges, cartes cadeaux & clés de jeux</title>
+<style>
+  :root{
+    --void:#0B0C10;
+    --panel:#15171E;
+    --panel-2:#1C1F28;
+    --line:#2A2E38;
+    --ember:#FF4B2B;
+    --ember-deep:#C7331A;
+    --cyan:#7FE7E0;
+    --gold:#FFC857;
+    --violet:#8B7CF6;
+    --text:#F3F5F8;
+    --muted:#9AA1AE;
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--void); color:var(--text); font-family:Arial,sans-serif; line-height:1.5;}
+  h1,h2,h3,.display{font-family:'Arial Narrow','Segoe UI',Arial,sans-serif; text-transform:uppercase; letter-spacing:0.02em; font-weight:700;}
+  .mono{font-family:'Consolas','Courier New',monospace;}
+  a{color:inherit; text-decoration:none;}
+  img{max-width:100%; display:block;}
+  button{font-family:inherit; cursor:pointer; border:none; background:none;}
+  .wrap{max-width:1240px; margin:0 auto; padding:0 24px;}
+  ::-webkit-scrollbar{height:6px; width:6px;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+
+  .gem{clip-path:polygon(50% 0%, 100% 38%, 80% 100%, 20% 100%, 0% 38%);}
+
+  /* utility topbar */
+  .topbar{background:var(--panel); border-bottom:1px solid var(--line); font-size:12.5px; color:var(--muted);}
+  .topbar .wrap{display:flex; justify-content:space-between; align-items:center; padding:8px 24px; gap:12px; flex-wrap:wrap;}
+  .topbar-left{display:flex; gap:18px;}
+  .topbar-left span{display:flex; align-items:center; gap:6px;}
+  .topbar-right{display:flex; gap:16px; align-items:center;}
+  .lang{border:1px solid var(--line); border-radius:6px; padding:3px 8px; font-size:12px;}
+
+  /* header */
+  header{position:sticky; top:0; z-index:50; background:rgba(11,12,16,0.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  .nav{display:flex; align-items:center; gap:24px; padding:16px 24px; max-width:1240px; margin:0 auto;}
+  .logo{display:flex; align-items:center; gap:10px; font-family:'Arial Narrow','Segoe UI',Arial,sans-serif; font-weight:700; font-size:21px; letter-spacing:0.03em; white-space:nowrap;}
+  .logo .mark{width:20px; height:20px; background:linear-gradient(135deg,var(--ember),var(--gold));}
+  .search-bar{
+    flex:1; display:flex; align-items:center; gap:10px; background:var(--panel-2);
+    border:1px solid var(--line); border-radius:10px; padding:10px 14px; max-width:440px;
+  }
+  .search-bar input{background:none; border:none; color:var(--text); font-size:14px; width:100%;}
+  .search-bar input:focus{outline:none;}
+  .nav-actions{display:flex; align-items:center; gap:14px; margin-left:auto;}
+  .wallet-chip{
+    display:flex; align-items:center; gap:8px; background:var(--panel-2); border:1px solid var(--line);
+    border-radius:20px; padding:8px 14px; font-size:13px; font-weight:600; color:var(--gold);
+  }
+  .icon-btn{
+    position:relative; width:40px; height:40px; border-radius:10px; background:var(--panel-2);
+    border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--text); font-size:17px;
+  }
+  .icon-btn:hover{border-color:var(--ember);}
+  .badge-count{position:absolute; top:-6px; right:-6px; background:var(--ember); color:#fff; font-size:10.5px; font-weight:700; border-radius:50%; width:17px; height:17px; display:flex; align-items:center; justify-content:center;}
+  .btn{padding:11px 20px; border-radius:10px; font-weight:600; font-size:14.5px; display:inline-flex; align-items:center; gap:8px; transition:transform .15s, box-shadow .15s, background .2s;}
+  .btn-primary{background:var(--ember); color:#fff;}
+  .btn-primary:hover{background:var(--ember-deep); box-shadow:0 8px 22px rgba(255,75,43,0.28);}
+  .btn-ghost{background:transparent; border:1px solid var(--line); color:var(--text);}
+  .btn-ghost:hover{border-color:var(--cyan);}
+
+  .cat-row{border-top:1px solid var(--line);}
+  .cat-row .wrap{display:flex; gap:28px; padding:12px 24px; font-size:13.5px; color:var(--muted); overflow-x:auto;}
+  .cat-row a{white-space:nowrap; display:flex; align-items:center; gap:6px; transition:color .2s;}
+  .cat-row a:hover, .cat-row a.active{color:var(--text);}
+  .cat-row a.active{color:var(--ember);}
+
+  /* hero carousel */
+  .hero{padding:32px 0 48px;}
+  .carousel{position:relative; border-radius:20px; overflow:hidden; border:1px solid var(--line); height:340px;}
+  .slide{
+    position:absolute; inset:0; display:flex; align-items:center; padding:0 56px;
+    opacity:0; transition:opacity .5s ease; pointer-events:none;
+  }
+  .slide.active{opacity:1; pointer-events:auto;}
+  .slide-content{position:relative; z-index:1; max-width:480px;}
+  .slide-eyebrow{color:var(--cyan); font-size:12.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:12px;}
+  .slide h2{font-size:clamp(26px,3.4vw,40px); line-height:1.05;}
+  .slide p{color:var(--muted); margin-top:12px; font-size:15px; max-width:380px;}
+  .slide .btn{margin-top:22px;}
+  .slide-bg{position:absolute; inset:0; z-index:0;}
+  .slide-bg .grad{position:absolute; inset:0;}
+  .slide-bg .shape{position:absolute; clip-path:polygon(50% 0%, 100% 38%, 80% 100%, 20% 100%, 0% 38%);}
+
+  .s1 .grad{background:radial-gradient(circle at 78% 50%, rgba(255,75,43,0.28), transparent 60%), var(--panel);}
+  .s1 .shape{width:220px; height:220px; right:60px; top:60px; background:linear-gradient(135deg,var(--ember),var(--gold)); opacity:0.9;}
+  .s2 .grad{background:radial-gradient(circle at 78% 50%, rgba(127,231,224,0.24), transparent 60%), var(--panel);}
+  .s2 .shape{width:200px; height:200px; right:80px; top:70px; background:linear-gradient(135deg,var(--cyan),#3FA79B); opacity:0.9;}
+  .s3 .grad{background:radial-gradient(circle at 78% 50%, rgba(139,124,246,0.26), transparent 60%), var(--panel);}
+  .s3 .shape{width:210px; height:210px; right:70px; top:65px; background:linear-gradient(135deg,var(--violet),#4C3FBF); opacity:0.9;}
+  .s4 .grad{background:radial-gradient(circle at 78% 50%, rgba(255,200,87,0.24), transparent 60%), var(--panel);}
+  .s4 .shape{width:200px; height:200px; right:80px; top:70px; background:linear-gradient(135deg,var(--gold),var(--ember)); opacity:0.9;}
+
+  .carousel-dots{position:absolute; bottom:18px; left:56px; display:flex; gap:8px; z-index:2;}
+  .cdot{width:24px; height:3px; border-radius:2px; background:var(--line); cursor:pointer; transition:background .2s;}
+  .cdot.active{background:var(--ember);}
+
+  /* popular games row */
+  .games-row{padding:8px 0 60px;}
+  .games-row-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:18px;}
+  .games-row-head h3{font-size:18px; color:var(--muted); letter-spacing:0.04em;}
+  .games-scroll{display:flex; gap:14px; overflow-x:auto; padding-bottom:6px;}
+  .game-chip{
+    flex:0 0 auto; width:104px; display:flex; flex-direction:column; align-items:center; gap:10px;
+    padding:14px 10px; background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    transition:border-color .2s, transform .2s;
+  }
+  .game-chip:hover{border-color:var(--ember); transform:translateY(-3px);}
+  .game-chip.active{border-color:var(--ember); background:rgba(255,75,43,0.07);}
+  .game-icon{width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;}
+  .game-chip span{font-size:11.5px; text-align:center; color:var(--muted); line-height:1.3;}
+
+  /* fracture */
+  .fracture{height:1px; background:linear-gradient(90deg,transparent,var(--line) 20%,var(--line) 80%,transparent); position:relative;}
+  .fracture::after{content:''; position:absolute; left:50%; top:-4px; width:9px; height:9px; background:var(--void); border:1px solid var(--ember); transform:translateX(-50%) rotate(45deg);}
+
+  section{padding:64px 0;}
+  .section-head{max-width:560px; margin-bottom:40px;}
+  .section-eyebrow{color:var(--ember); font-size:13px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px;}
+  .section-head h2{font-size:clamp(26px,3.6vw,36px);}
+  .section-head p{color:var(--muted); margin-top:10px; font-size:15.5px;}
+
+  .id-check{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px; max-width:640px; margin-bottom:44px;}
+  .id-check-label{font-size:13px; color:var(--muted); margin-bottom:12px; font-weight:600;}
+  .id-check-row{display:flex; gap:10px; flex-wrap:wrap;}
+  .field{flex:1; min-width:150px; background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:13px 14px; color:var(--text); font-size:15px; font-family:'Consolas','Courier New',monospace;}
+  .field:focus{outline:none; border-color:var(--ember);}
+  select.field{font-family:Arial,sans-serif; appearance:none;}
+  #id-status{font-size:13px; margin-top:10px; min-height:18px;}
+  #id-status.ok{color:var(--cyan);}
+  #id-status.err{color:var(--ember);}
+
+  .pkg-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .pkg-card{position:relative; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:26px 22px; clip-path:polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px)); transition:transform .2s, border-color .2s;}
+  .pkg-card:hover{transform:translateY(-4px); border-color:var(--ember);}
+  .pkg-badge{position:absolute; top:16px; right:16px; font-size:11px; font-weight:700; padding:4px 9px; border-radius:20px; letter-spacing:0.03em; text-transform:uppercase;}
+  .pkg-badge.popular{background:rgba(255,75,43,0.15); color:var(--ember);}
+  .pkg-badge.bonus{background:rgba(255,200,87,0.15); color:var(--gold);}
+  .pkg-gem{width:30px; height:30px; margin-bottom:16px; background:linear-gradient(135deg,var(--cyan),#3FA79B);}
+  .pkg-amount{font-family:'Arial Narrow','Segoe UI',Arial,sans-serif; font-weight:700; font-size:30px;}
+  .pkg-bonus{color:var(--gold); font-size:13px; font-weight:600; margin-top:4px;}
+  .pkg-name{color:var(--muted); font-size:14px; margin-top:10px;}
+  .pkg-foot{display:flex; align-items:center; justify-content:space-between; margin-top:22px;}
+  .pkg-price{font-family:'Consolas','Courier New',monospace; font-weight:600; font-size:16px;}
+  .pkg-buy{background:var(--panel-2); border:1px solid var(--line); color:var(--text); padding:9px 16px; border-radius:8px; font-size:14px; font-weight:600; transition:background .2s, border-color .2s;}
+  .pkg-buy:hover{background:var(--ember); border-color:var(--ember);}
+
+  /* best sellers */
+  .bs-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+  .bs-card{background:var(--panel); border:1px solid var(--line); border-radius:14px; overflow:hidden; transition:border-color .2s, transform .2s;}
+  .bs-card:hover{border-color:var(--cyan); transform:translateY(-3px);}
+  .bs-thumb{height:90px; display:flex; align-items:center; justify-content:center; font-size:26px;}
+  .bs-body{padding:14px;}
+  .bs-title{font-size:13.5px; font-weight:600;}
+  .bs-sub{color:var(--muted); font-size:12px; margin-top:4px;}
+  .bs-price{margin-top:10px; font-family:'Consolas','Courier New',monospace; font-size:13.5px; color:var(--gold);}
+  .soon-tag{display:inline-block; margin-top:8px; font-size:10.5px; padding:3px 8px; border-radius:20px; background:rgba(139,124,246,0.15); color:var(--violet); font-weight:700; text-transform:uppercase; letter-spacing:0.03em;}
+
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:24px;}
+  .step{border-left:2px solid var(--line); padding-left:20px;}
+  .step-num{font-family:'Consolas','Courier New',monospace; color:var(--ember); font-size:14px; font-weight:600;}
+  .step h3{font-size:19px; margin-top:10px;}
+  .step p{color:var(--muted); font-size:14.5px; margin-top:8px;}
+
+  .pay-row{display:flex; gap:14px; flex-wrap:wrap;}
+  .pay-chip{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 20px; font-size:14px; font-weight:600; display:flex; align-items:center; gap:10px; color:var(--muted);}
+  .pay-chip .dot{width:8px; height:8px; border-radius:50%;}
+
+  .partners-row{display:flex; gap:40px; align-items:center; flex-wrap:wrap; opacity:0.75;}
+  .partner-chip{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:14px; font-weight:600;}
+  .partner-dot{width:10px; height:10px; border-radius:50%;}
+
+  .faq-item{border-bottom:1px solid var(--line); padding:18px 0;}
+  .faq-q{display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-weight:600; font-size:15.5px;}
+  .faq-q .plus{font-size:20px; color:var(--ember); transition:transform .2s;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0; overflow:hidden; transition:max-height .25s ease; color:var(--muted); font-size:14.5px;}
+  .faq-item.open .faq-a{max-height:200px; padding-top:12px;}
+
+  footer{border-top:1px solid var(--line); padding:56px 0 32px; color:var(--muted); font-size:14px;}
+  .foot-grid{display:flex; justify-content:space-between; flex-wrap:wrap; gap:32px; margin-bottom:32px;}
+  .foot-links{display:flex; gap:40px; flex-wrap:wrap;}
+  .foot-links h4{color:var(--text); font-size:13px; margin-bottom:12px; text-transform:uppercase; letter-spacing:0.05em;}
+  .foot-links a{display:block; color:var(--muted); font-size:14px; margin-bottom:8px;}
+  .foot-links a:hover{color:var(--text);}
+  .foot-contact{display:flex; gap:16px; margin-top:14px; flex-wrap:wrap; font-size:13px;}
+  .disclaimer{border-top:1px solid var(--line); padding-top:22px; font-size:12.5px; line-height:1.6; color:#6B717D;}
+
+  /* drawer + toast + modal (shared) */
+  .overlay{position:fixed; inset:0; background:rgba(6,7,9,0.6); backdrop-filter:blur(2px); opacity:0; pointer-events:none; transition:opacity .25s; z-index:100;}
+  .overlay.show{opacity:1; pointer-events:auto;}
+  .drawer{position:fixed; top:0; right:0; height:100%; width:420px; max-width:92vw; background:var(--panel); border-left:1px solid var(--line); transform:translateX(100%); transition:transform .3s ease; z-index:101; display:flex; flex-direction:column;}
+  .drawer.show{transform:translateX(0);}
+  .drawer-head{display:flex; justify-content:space-between; align-items:center; padding:22px; border-bottom:1px solid var(--line);}
+  .drawer-head h3{font-size:20px;}
+  .close-btn{width:32px; height:32px; border-radius:8px; background:var(--panel-2); color:var(--text); font-size:16px; display:flex; align-items:center; justify-content:center;}
+  .drawer-body{flex:1; overflow-y:auto; padding:22px;}
+  .drawer-foot{padding:22px; border-top:1px solid var(--line);}
+  .step-dots{display:flex; gap:6px; padding:0 22px; margin-top:14px;}
+  .step-dot{flex:1; height:3px; background:var(--line); border-radius:2px;}
+  .step-dot.active{background:var(--ember);}
+  .cart-line{display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--line);}
+  .cart-line-title{font-weight:600; font-size:15px;}
+  .cart-line-sub{color:var(--muted); font-size:13px; margin-top:2px;}
+  .cart-empty{color:var(--muted); font-size:14px; text-align:center; padding:40px 0;}
+  .form-group{margin-bottom:16px;}
+  .form-group label{display:block; font-size:13px; color:var(--muted); margin-bottom:8px; font-weight:600;}
+  .form-group .field{width:100%;}
+  .pay-option{display:flex; align-items:center; gap:12px; padding:14px; border:1px solid var(--line); border-radius:10px; margin-bottom:10px; cursor:pointer; transition:border-color .2s, background .2s;}
+  .pay-option:hover{border-color:var(--cyan);}
+  .pay-option.selected{border-color:var(--ember); background:rgba(255,75,43,0.06);}
+  .pay-option .dot{width:10px; height:10px; border-radius:50%; flex-shrink:0;}
+  .pay-option .name{font-weight:600; font-size:14.5px;}
+  .pay-option .desc{color:var(--muted); font-size:12.5px;}
+  .summary-row{display:flex; justify-content:space-between; font-size:14px; color:var(--muted); margin-bottom:8px;}
+  .summary-row.total{color:var(--text); font-weight:700; font-size:17px; font-family:'Consolas','Courier New',monospace; margin-top:12px; padding-top:12px; border-top:1px solid var(--line);}
+  .confirm-box{text-align:center; padding:20px 0;}
+  .confirm-gem{width:64px; height:64px; margin:0 auto 20px; background:linear-gradient(135deg,var(--ember),var(--gold));}
+  .order-id{font-family:'Consolas','Courier New',monospace; color:var(--cyan); font-size:14px; margin-top:8px;}
+  .demo-note{margin-top:18px; font-size:12.5px; color:var(--muted); background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:12px;}
+
+  .modal{position:fixed; top:50%; left:50%; transform:translate(-50%,-45%); width:380px; max-width:90vw; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:26px; z-index:102; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;}
+  .modal.show{opacity:1; pointer-events:auto; transform:translate(-50%,-50%);}
+  .modal h3{font-size:20px; margin-bottom:16px;}
+
+  .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:12px 20px; font-size:13.5px; z-index:200; opacity:0; transition:opacity .25s, transform .25s; pointer-events:none;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:900px){
+    .pkg-grid{grid-template-columns:repeat(2,1fr);}
+    .bs-grid{grid-template-columns:repeat(2,1fr);}
+    .steps{grid-template-columns:1fr;}
+    .search-bar{display:none;}
+  }
+  @media (max-width:640px){
+    .topbar-left span:not(:first-child){display:none;}
+    .pkg-grid{grid-template-columns:1fr;}
+    .bs-grid{grid-template-columns:1fr;}
+    .id-check-row{flex-direction:column;}
+    .slide{padding:0 24px;}
+    .slide p{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="topbar-left">
+      <span>⚡ Livraison instantanée</span>
+      <span>🔒 Paiement sécurisé</span>
+      <span>🕒 Support 24/7</span>
+    </div>
+    <div class="topbar-right">
+      <a href="#" class="lang">FR</a>
+      <a href="#discord">Discord</a>
+      <a href="#contact">WhatsApp</a>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="nav">
+    <div class="logo"><span class="mark gem"></span>SALOCOOL G</div>
+    <div class="search-bar">
+      <span>🔍</span>
+      <input placeholder="Rechercher un jeu, une carte cadeau...">
+    </div>
+    <div class="nav-actions">
+      <div class="wallet-chip" onclick="showToast('Portefeuille VIP — bientôt disponible')">◆ 0 FCFA</div>
+      <button class="icon-btn" onclick="openCart()">🛒<span class="badge-count" id="cart-count">0</span></button>
+      <button class="btn btn-ghost" onclick="openModal('signin-modal')">Connexion</button>
+    </div>
+  </div>
+  <div class="cat-row">
+    <div class="wrap">
+      <a href="#accueil">Accueil</a>
+      <a href="#recharges" class="active">Recharges de jeux</a>
+      <a href="#giftcards">Cartes cadeaux</a>
+      <a href="#gamekeys">Clés de jeux</a>
+      <a href="#faq">FAQ</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="accueil">
+  <div class="wrap">
+    <div class="carousel" id="carousel">
+      <div class="slide active s1">
+        <div class="slide-bg"><div class="grad"></div><div class="shape gem"></div></div>
+        <div class="slide-content">
+          <div class="slide-eyebrow">Recharge du moment</div>
+          <h2>Diamants Free Fire</h2>
+          <p>Recharge tes diamants en quelques secondes et prépare ta prochaine partie.</p>
+          <button class="btn btn-primary" onclick="scrollToPacks()">Acheter</button>
+        </div>
+      </div>
+      <div class="slide s2">
+        <div class="slide-bg"><div class="grad"></div><div class="shape gem"></div></div>
+        <div class="slide-content">
+          <div class="slide-eyebrow">Abonnement</div>
+          <h2>Abonnement Free Fire</h2>
+          <p>Active ton abonnement Free Fire et récupère tes récompenses sans attendre.</p>
+          <button class="btn btn-primary" onclick="scrollToPacks()">Acheter</button>
+        </div>
+      </div>
+      <div class="slide s3">
+        <div class="slide-bg"><div class="grad"></div><div class="shape gem"></div></div>
+        <div class="slide-content">
+          <div class="slide-eyebrow">Bientôt disponible</div>
+          <h2>CODM Instant CP</h2>
+          <p>Achète tes CP Call of Duty Mobile et débloque skins et pass premium.</p>
+          <button class="btn btn-ghost" onclick="showToast('Bientôt disponible — reviens vite !')">Voir</button>
+        </div>
+      </div>
+      <div class="slide s4">
+        <div class="slide-bg"><div class="grad"></div><div class="shape gem"></div></div>
+        <div class="slide-content">
+          <div class="slide-eyebrow">Bientôt disponible</div>
+          <h2>Cartes cadeaux</h2>
+          <p>Netflix, Google Play et plus encore, prêtes à l'emploi.</p>
+          <button class="btn btn-ghost" onclick="showToast('Bientôt disponible — reviens vite !')">Voir</button>
+        </div>
+      </div>
+      <div class="carousel-dots" id="carousel-dots"></div>
+    </div>
+  </div>
+</section>
+
+<div class="games-row">
+  <div class="wrap">
+    <div class="games-row-head"><h3>Jeux populaires</h3></div>
+    <div class="games-scroll" id="games-scroll"></div>
+  </div>
+</div>
+
+<div class="wrap"><div class="fracture"></div></div>
+
+<section id="recharges">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Free Fire</div>
+      <h2>Diamants Free Fire</h2>
+      <p>Entre ton ID joueur, choisis ton pack et reçois tes diamants en quelques minutes.</p>
+    </div>
+
+    <div class="id-check">
+      <div class="id-check-label">Ton ID joueur</div>
+      <div class="id-check-row">
+        <input class="field" id="hero-player-id" placeholder="Ex : 8237194502" inputmode="numeric">
+        <select class="field" id="hero-server">
+          <option>Serveur Afrique</option>
+          <option>Serveur MENA</option>
+          <option>Serveur Asie</option>
+          <option>Serveur Amérique latine</option>
+        </select>
+        <button class="btn btn-primary" onclick="checkId()">Vérifier →</button>
+      </div>
+      <div id="id-status"></div>
+    </div>
+
+    <div class="pkg-grid" id="pkg-grid"></div>
+  </div>
+</section>
+
+<div class="wrap"><div class="fracture"></div></div>
+
+<section id="giftcards">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Catalogue</div>
+      <h2>Meilleures ventes</h2>
+      <p>Une sélection de nos recharges et cartes cadeaux les plus demandées.</p>
+    </div>
+    <div class="bs-grid" id="bs-grid"></div>
+  </div>
+</section>
+
+<div class="wrap"><div class="fracture"></div></div>
+
+<section id="comment">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Le process</div>
+      <h2>Comment ça marche</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><h3>Ton ID joueur</h3><p>Visible dans ton profil en jeu, en haut de l'écran. Pas besoin de mot de passe.</p></div>
+      <div class="step"><div class="step-num">02</div><h3>Ton pack & paiement</h3><p>Choisis un pack de diamants et paie par Mobile Money ou carte bancaire.</p></div>
+      <div class="step"><div class="step-num">03</div><h3>Diamants crédités</h3><p>Reçus directement dans Free Fire, généralement en quelques minutes.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><div class="fracture"></div></div>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Paiement</div>
+      <h2>Moyens de paiement acceptés</h2>
+    </div>
+    <div class="pay-row">
+      <div class="pay-chip"><span class="dot" style="background:#0072CE"></span>Togocel T-Money</div>
+      <div class="pay-chip"><span class="dot" style="background:#FF6B00"></span>Moov Money Flooz</div>
+      <div class="pay-chip"><span class="dot" style="background:#1DC8CD"></span>Wave</div>
+      <div class="pay-chip"><span class="dot" style="background:#7FE7E0"></span>Carte bancaire</div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><div class="fracture"></div></div>
+
+<section id="gamekeys">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Partenariat</div>
+      <h2>Nos partenaires</h2>
+      <p>Partenaires qui soutiennent SALOCOOL G côté paiement, catalogue et esport.</p>
+    </div>
+    <div class="partners-row">
+      <div class="partner-chip"><span class="partner-dot" style="background:var(--ember)"></span>ECS Network</div>
+      <div class="partner-chip"><span class="partner-dot" style="background:var(--cyan)"></span>PayDunya</div>
+      <div class="partner-chip"><span class="partner-dot" style="background:var(--gold)"></span>CinetPay</div>
+      <div class="partner-chip"><span class="partner-dot" style="background:var(--violet)"></span>Carbon Series</div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><div class="fracture"></div></div>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-eyebrow">Questions fréquentes</div>
+      <h2>FAQ</h2>
+    </div>
+    <div id="faq-list"></div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="logo"><span class="mark gem"></span>SALOCOOL G</div>
+        <p style="margin-top:12px; max-width:280px;">Recharges de jeux, cartes cadeaux et clés de jeux, livrées rapidement et en toute sécurité.</p>
+        <div class="foot-contact">
+          <a href="#" id="discord">Discord</a>
+          <a href="tel:+000000000">Téléphone</a>
+          <a href="#">WhatsApp</a>
+        </div>
+      </div>
+      <div class="foot-links">
+        <div>
+          <h4>Boutique</h4>
+          <a href="#recharges">Recharges de jeux</a>
+          <a href="#giftcards">Cartes cadeaux</a>
+          <a href="#gamekeys">Clés de jeux</a>
+        </div>
+        <div>
+          <h4>Service client</h4>
+          <a href="#">Mon profil</a>
+          <a href="#">Mes commandes</a>
+          <a href="#">Politique de remboursement</a>
+        </div>
+        <div>
+          <h4>Guides</h4>
+          <a href="#">Achat automatique</a>
+          <a href="#">Livraison instantanée</a>
+          <a href="#faq">FAQ</a>
+        </div>
+        <div>
+          <h4>Légal</h4>
+          <a href="#">Mentions légales</a>
+          <a href="#">CGV</a>
+          <a href="#">Confidentialité</a>
+        </div>
+      </div>
+    </div>
+    <div class="disclaimer">
+      SALOCOOL G est un service indépendant de revente de recharges et n'est affilié, sponsorisé ou approuvé par aucun des éditeurs des jeux mentionnés (Garena, Activision, miHoYo, Epic Games, etc.). Toutes les marques citées appartiennent à leurs propriétaires respectifs. Tous les prix sont donnés à titre indicatif.
+    </div>
+  </div>
+</footer>
+
+<!-- Cart Drawer -->
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head"><h3 id="drawer-title">Ton panier</h3><button class="close-btn" onclick="closeAll()">✕</button></div>
+  <div class="step-dots" id="step-dots"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div>
+  <div class="drawer-body" id="drawer-body"></div>
+  <div class="drawer-foot" id="drawer-foot"></div>
+</div>
+
+<!-- Sign in modal -->
+<div class="modal" id="signin-modal">
+  <h3>Connexion</h3>
+  <div class="form-group"><label>E-mail</label><input class="field" style="width:100%;" placeholder="toi@exemple.com"></div>
+  <div class="form-group"><label>Mot de passe</label><input class="field" style="width:100%;" type="password" placeholder="••••••••"></div>
+  <button class="btn btn-primary" style="width:100%;" onclick="showToast('Connexion — bientôt disponible'); closeAll();">Se connecter</button>
+  <p style="font-size:12.5px; color:var(--muted); margin-top:14px; text-align:center;">Système de compte en démo — à connecter à un vrai backend.</p>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const packages = [
+  {id:1, name:'Étincelle', diamonds:100, bonus:0, price:500},
+  {id:2, name:'Flamme', diamonds:310, bonus:10, price:1500},
+  {id:3, name:'Braise', diamonds:520, bonus:20, price:2500, badge:'Populaire'},
+  {id:4, name:'Brasier', diamonds:1060, bonus:60, price:5000},
+  {id:5, name:'Incendie', diamonds:2200, bonus:200, price:10000, badge:'Meilleur bonus'},
+  {id:6, name:'Supernova', diamonds:5600, bonus:600, price:25000},
+];
+
+const games = [
+  {name:'Free Fire', emoji:'🔥', color:'rgba(255,75,43,0.18)', active:true},
+  {name:'Call of Duty Mobile', emoji:'🎯', color:'rgba(139,124,246,0.18)'},
+  {name:'PUBG Mobile', emoji:'🪂', color:'rgba(255,200,87,0.18)'},
+  {name:'Genshin Impact', emoji:'⚔️', color:'rgba(127,231,224,0.18)'},
+  {name:'Mobile Legends', emoji:'🛡️', color:'rgba(255,75,43,0.18)'},
+  {name:'Valorant', emoji:'🎮', color:'rgba(139,124,246,0.18)'},
+  {name:'Fortnite', emoji:'🏗️', color:'rgba(127,231,224,0.18)'},
+  {name:'Zenless Zone Zero', emoji:'⚡', color:'rgba(255,200,87,0.18)'},
+];
+
+const bestSellers = [
+  {emoji:'💎', title:'Free Fire — 520 diamants', sub:'Pack le plus vendu', price:'2 500 FCFA', live:true},
+  {emoji:'🎟️', title:'Free Fire — Abonnement mensuel', sub:'Récompenses quotidiennes', price:'3 000 FCFA', soon:true},
+  {emoji:'🔫', title:'CODM — 880 CP', sub:'Call of Duty Mobile', price:'—', soon:true},
+  {emoji:'🎬', title:'Netflix — Carte 5 000 FCFA', sub:'Carte cadeau', price:'—', soon:true},
+];
+
+const faqs = [
+  {q:"Combien de temps prend la livraison ?", a:"La plupart des recharges sont créditées instantanément, avec un délai maximum de 15 minutes en cas de forte demande."},
+  {q:"Ai-je besoin de mon mot de passe Free Fire ?", a:"Non. Seul ton ID joueur (visible dans ton profil en jeu) est nécessaire pour recevoir les diamants."},
+  {q:"Que faire si je me suis trompé d'ID joueur ?", a:"Contacte le support avant de valider ta commande. Une fois les diamants envoyés, la transaction ne peut pas être annulée."},
+  {q:"Les paiements sont-ils sécurisés ?", a:"Oui, tous les paiements sont chiffrés et traités par nos partenaires de paiement certifiés."},
+];
+
+const paymentMethods = [
+  {id:'tmoney', name:'Togocel T-Money', desc:"Paiement via ton compte T-Money Togocel", color:'#0072CE'},
+  {id:'flooz', name:'Moov Money Flooz', desc:"Paiement via ton compte Moov Money Flooz", color:'#FF6B00'},
+  {id:'wave', name:'Wave', desc:"Paiement via l'application Wave", color:'#1DC8CD'},
+  {id:'card', name:'Carte bancaire', desc:'Visa, Mastercard', color:'#7FE7E0'},
+];
+
+let cart = null;
+let step = 0;
+let slideIndex = 0;
+
+function fmt(n){ return n.toLocaleString('fr-FR') + ' FCFA'; }
+
+function renderPackages(){
+  document.getElementById('pkg-grid').innerHTML = packages.map(p => `
+    <div class="pkg-card">
+      ${p.badge ? `<div class="pkg-badge ${p.badge==='Populaire'?'popular':'bonus'}">${p.badge}</div>` : ''}
+      <div class="pkg-gem"></div>
+      <div class="pkg-amount">${p.diamonds.toLocaleString('fr-FR')} 💎</div>
+      ${p.bonus ? `<div class="pkg-bonus">+${p.bonus} bonus</div>` : ''}
+      <div class="pkg-name">${p.name}</div>
+      <div class="pkg-foot"><div class="pkg-price">${fmt(p.price)}</div><button class="pkg-buy" onclick="buyPackage(${p.id})">Acheter</button></div>
+    </div>
+  `).join('');
+}
+
+function renderGames(){
+  document.getElementById('games-scroll').innerHTML = games.map(g => `
+    <div class="game-chip ${g.active?'active':''}" onclick="${g.active ? 'scrollToPacks()' : `showToast('${g.name} — bientôt disponible')`}">
+      <div class="game-icon" style="background:${g.color}">${g.emoji}</div>
+      <span>${g.name}</span>
+    </div>
+  `).join('');
+}
+
+function renderBestSellers(){
+  document.getElementById('bs-grid').innerHTML = bestSellers.map(b => `
+    <div class="bs-card" onclick="${b.live ? 'scrollToPacks()' : `showToast('Bientôt disponible — reviens vite !')`}">
+      <div class="bs-thumb" style="background:linear-gradient(135deg, rgba(255,75,43,0.14), rgba(127,231,224,0.08));">${b.emoji}</div>
+      <div class="bs-body">
+        <div class="bs-title">${b.title}</div>
+        <div class="bs-sub">${b.sub}</div>
+        ${b.live ? `<div class="bs-price">${b.price}</div>` : `<div class="soon-tag">Bientôt</div>`}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderFaq(){
+  document.getElementById('faq-list').innerHTML = faqs.map((f,i) => `
+    <div class="faq-item" id="faq-${i}">
+      <div class="faq-q" onclick="toggleFaq(${i})"><span>${f.q}</span><span class="plus">+</span></div>
+      <div class="faq-a">${f.a}</div>
+    </div>
+  `).join('');
+}
+function toggleFaq(i){ document.getElementById('faq-'+i).classList.toggle('open'); }
+
+function scrollToPacks(){ document.getElementById('recharges').scrollIntoView({behavior:'smooth'}); }
+
+/* Carousel */
+function renderDots(){
+  const slides = document.querySelectorAll('.slide');
+  document.getElementById('carousel-dots').innerHTML = Array.from(slides).map((_,i) => `<div class="cdot ${i===slideIndex?'active':''}" onclick="goSlide(${i})"></div>`).join('');
+}
+function goSlide(i){
+  const slides = document.querySelectorAll('.slide');
+  slides[slideIndex].classList.remove('active');
+  slideIndex = i;
+  slides[slideIndex].classList.add('active');
+  renderDots();
+}
+function nextSlide(){
+  const slides = document.querySelectorAll('.slide');
+  goSlide((slideIndex + 1) % slides.length);
+}
+setInterval(nextSlide, 5000);
+
+/* Toast */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* Modal */
+function openModal(id){
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById(id).classList.add('show');
+}
+function closeAll(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('drawer').classList.remove('show');
+  document.getElementById('signin-modal').classList.remove('show');
+}
+
+/* ID check */
+function checkId(){
+  const id = document.getElementById('hero-player-id').value.trim();
+  const status = document.getElementById('id-status');
+  if(!/^\d{6,12}$/.test(id)){
+    status.className = 'err';
+    status.textContent = 'ID invalide. Entre un identifiant numérique (6 à 12 chiffres).';
+    return;
+  }
+  status.className = 'ok';
+  status.textContent = `Compte trouvé pour l'ID ${id}. Choisis un pack ci-dessous pour continuer.`;
+}
+
+/* Cart / checkout */
+function buyPackage(id){
+  const pkg = packages.find(p => p.id === id);
+  const heroId = document.getElementById('hero-player-id').value.trim();
+  cart = { pkg, playerId: /^\d{6,12}$/.test(heroId) ? heroId : '', server: document.getElementById('hero-server').value, payment:null };
+  step = /^\d{6,12}$/.test(heroId) ? 2 : 1;
+  openCart();
+}
+function updateCartCount(){ document.getElementById('cart-count').textContent = cart ? 1 : 0; }
+
+function openCart(){
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('drawer').classList.add('show');
+  if(!cart) step = 0;
+  renderDrawer();
+}
+
+function setDots(n){ document.querySelectorAll('.step-dot').forEach((d,i) => d.classList.toggle('active', i < n)); }
+
+function renderDrawer(){
+  const body = document.getElementById('drawer-body');
+  const foot = document.getElementById('drawer-foot');
+  const title = document.getElementById('drawer-title');
+
+  if(!cart){
+    title.textContent = 'Ton panier';
+    setDots(0);
+    body.innerHTML = `<div class="cart-empty">Ton panier est vide.<br>Choisis un pack de diamants pour commencer.</div>`;
+    foot.innerHTML = '';
+    return;
+  }
+
+  const p = cart.pkg;
+
+  if(step === 1){
+    title.textContent = 'Ton compte';
+    setDots(1);
+    body.innerHTML = `
+      <div class="cart-line"><div><div class="cart-line-title">${p.diamonds.toLocaleString('fr-FR')} 💎 — ${p.name}</div><div class="cart-line-sub">${p.bonus ? '+'+p.bonus+' bonus' : 'Sans bonus'}</div></div><div class="pkg-price">${fmt(p.price)}</div></div>
+      <div class="form-group" style="margin-top:20px;"><label>ID joueur</label><input class="field" id="drawer-player-id" placeholder="Ex : 8237194502" inputmode="numeric" value="${cart.playerId}"></div>
+      <div class="form-group"><label>Serveur</label>
+        <select class="field" id="drawer-server">
+          <option ${cart.server==='Serveur Afrique'?'selected':''}>Serveur Afrique</option>
+          <option ${cart.server==='Serveur MENA'?'selected':''}>Serveur MENA</option>
+          <option ${cart.server==='Serveur Asie'?'selected':''}>Serveur Asie</option>
+          <option ${cart.server==='Serveur Amérique latine'?'selected':''}>Serveur Amérique latine</option>
+        </select>
+      </div>
+      <div id="drawer-id-err" style="color:var(--ember); font-size:13px; min-height:16px;"></div>
+    `;
+    foot.innerHTML = `<button class="btn btn-primary" style="width:100%;" onclick="goStep2()">Continuer</button>`;
+  }
+
+  if(step === 2){
+    title.textContent = 'Moyen de paiement';
+    setDots(2);
+    body.innerHTML = `
+      <div class="cart-line"><div><div class="cart-line-title">${p.diamonds.toLocaleString('fr-FR')} 💎 — ${p.name}</div><div class="cart-line-sub">ID ${cart.playerId} · ${cart.server}</div></div><div class="pkg-price">${fmt(p.price)}</div></div>
+      <div style="margin-top:20px;">
+        ${paymentMethods.map(m => `
+          <div class="pay-option ${cart.payment===m.id?'selected':''}" onclick="selectPayment('${m.id}')">
+            <span class="dot" style="background:${m.color}"></span>
+            <div><div class="name">${m.name}</div><div class="desc">${m.desc}</div></div>
+          </div>
+        `).join('')}
+      </div>
+      ${cart.payment && cart.payment !== 'card' ? `<div class="form-group" style="margin-top:16px;"><label>Numéro de téléphone Mobile Money</label><input class="field" placeholder="Ex : 07 00 00 00 00"></div>` : ''}
+      ${cart.payment === 'card' ? `
+        <div class="form-group" style="margin-top:16px;"><label>Numéro de carte</label><input class="field" placeholder="4242 4242 4242 4242"></div>
+        <div style="display:flex; gap:10px;"><div class="form-group" style="flex:1;"><label>Expiration</label><input class="field" placeholder="MM/AA"></div><div class="form-group" style="flex:1;"><label>CVV</label><input class="field" placeholder="123"></div></div>
+      ` : ''}
+    `;
+    foot.innerHTML = `<div style="display:flex; gap:10px;"><button class="btn btn-ghost" style="flex:1;" onclick="step=1; renderDrawer();">Retour</button><button class="btn btn-primary" style="flex:2;" onclick="goStep3()">Payer ${fmt(p.price)}</button></div>`;
+  }
+
+  if(step === 3){
+    title.textContent = 'Confirmation';
+    setDots(3);
+    const orderId = 'ECL-' + Math.floor(100000 + Math.random()*899999);
+    cart.orderId = orderId;
+    body.innerHTML = `
+      <div class="confirm-box">
+        <div class="confirm-gem"></div>
+        <h3 style="font-size:22px;">Commande confirmée</h3>
+        <p style="color:var(--muted); margin-top:8px; font-size:14px;">${p.diamonds.toLocaleString('fr-FR')} 💎 seront crédités sur l'ID ${cart.playerId}</p>
+        <div class="order-id">N° de commande ${orderId}</div>
+        <div class="summary-row" style="margin-top:24px; text-align:left;"><span>Pack</span><span>${p.name}</span></div>
+        <div class="summary-row" style="text-align:left;"><span>Paiement</span><span>${paymentMethods.find(m=>m.id===cart.payment)?.name || ''}</span></div>
+        <div class="summary-row total" style="text-align:left;"><span>Total</span><span>${fmt(p.price)}</span></div>
+        <div class="demo-note">⚠️ Démonstration : aucun paiement réel n'a été effectué. Pour activer de vrais paiements, connecte un fournisseur (Orange Money API, Wave, Stripe...) côté serveur.</div>
+      </div>
+    `;
+    foot.innerHTML = `<button class="btn btn-primary" style="width:100%;" onclick="resetCart()">Nouvelle recharge</button>`;
+  }
+}
+
+function goStep2(){
+  const id = document.getElementById('drawer-player-id').value.trim();
+  const err = document.getElementById('drawer-id-err');
+  if(!/^\d{6,12}$/.test(id)){ err.textContent = 'Entre un ID joueur valide (6 à 12 chiffres).'; return; }
+  cart.playerId = id;
+  cart.server = document.getElementById('drawer-server').value;
+  step = 2;
+  renderDrawer();
+}
+function selectPayment(id){ cart.payment = id; renderDrawer(); }
+function goStep3(){
+  if(!cart.payment){ showToast('Choisis un moyen de paiement.'); return; }
+  step = 3;
+  renderDrawer();
+  updateCartCount();
+}
+function resetCart(){ cart = null; step = 0; updateCartCount(); renderDrawer(); closeAll(); }
+
+renderPackages();
+renderGames();
+renderBestSellers();
+renderFaq();
+renderDots();
+</script>
+</body>
+</html>
